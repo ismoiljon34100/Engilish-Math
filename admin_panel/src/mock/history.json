@@ -1,0 +1,54 @@
+{
+  "1": [
+    { "date": "2026-09-01", "task_type": "task2", "band": 5.5 },
+    { "date": "2026-09-05", "task_type": "task1", "band": 6.0 },
+    { "date": "2026-09-10", "task_type": "task2", "band": 6.0 },
+    { "date": "2026-09-14", "task_type": "task2", "band": 6.5 },
+    { "date": "2026-09-18", "task_type": "task1", "band": 6.5 },
+    { "date": "2026-09-20", "task_type": "task2", "band": 7.0 }
+  ],
+  "2": [
+    { "date": "2026-08-28", "task_type": "task1", "band": 6.5 },
+    { "date": "2026-09-02", "task_type": "task2", "band": 7.0 },
+    { "date": "2026-09-07", "task_type": "task2", "band": 7.0 },
+    { "date": "2026-09-12", "task_type": "task1", "band": 7.5 },
+    { "date": "2026-09-16", "task_type": "task2", "band": 7.5 },
+    { "date": "2026-09-21", "task_type": "task2", "band": 8.0 }
+  ],
+  "3": [
+    { "date": "2026-09-04", "task_type": "task2", "band": 5.0 },
+    { "date": "2026-09-09", "task_type": "task1", "band": 5.5 },
+    { "date": "2026-09-15", "task_type": "task2", "band": 6.0 },
+    { "date": "2026-09-19", "task_type": "task2", "band": 6.0 }
+  ],
+  "4": [
+    { "date": "2026-09-02", "task_type": "task1", "band": 6.0 },
+    { "date": "2026-09-08", "task_type": "task2", "band": 6.5 },
+    { "date": "2026-09-13", "task_type": "task1", "band": 7.0 },
+    { "date": "2026-09-17", "task_type": "task2", "band": 7.0 },
+    { "date": "2026-09-21", "task_type": "task2", "band": 7.5 }
+  ],
+  "5": [
+    { "date": "2026-09-10", "task_type": "task1", "band": 5.0 },
+    { "date": "2026-09-16", "task_type": "task2", "band": 5.5 }
+  ],
+  "6": [
+    { "date": "2026-08-20", "task_type": "task2", "band": 7.0 },
+    { "date": "2026-08-27", "task_type": "task1", "band": 7.5 },
+    { "date": "2026-09-03", "task_type": "task2", "band": 7.5 },
+    { "date": "2026-09-10", "task_type": "task1", "band": 8.0 },
+    { "date": "2026-09-17", "task_type": "task2", "band": 8.0 },
+    { "date": "2026-09-21", "task_type": "task2", "band": 8.5 }
+  ],
+  "7": [
+    { "date": "2026-09-05", "task_type": "task2", "band": 6.0 },
+    { "date": "2026-09-11", "task_type": "task1", "band": 6.0 },
+    { "date": "2026-09-18", "task_type": "task2", "band": 6.5 }
+  ],
+  "8": [
+    { "date": "2026-09-01", "task_type": "task2", "band": 6.5 },
+    { "date": "2026-09-08", "task_type": "task1", "band": 6.5 },
+    { "date": "2026-09-15", "task_type": "task2", "band": 7.0 },
+    { "date": "2026-09-20", "task_type": "task2", "band": 7.5 }
+  ]
+}

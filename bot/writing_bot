@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")"
+if [ -f "../.env" ]; then
+    export $(grep -v '^#' ../.env | xargs -d '\n')
+fi
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs -d '\n')
+fi
+python3 bot.py

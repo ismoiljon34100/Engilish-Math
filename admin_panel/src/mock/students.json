@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "Ali Valiyev",
+    "username": "ali_v",
+    "avg_band": 6.5,
+    "streak_days": 7,
+    "submissions_count": 12,
+    "last_active": "2026-09-20"
+  },
+  {
+    "id": 2,
+    "name": "Madina Karimova",
+    "username": "madina_k",
+    "avg_band": 7.5,
+    "streak_days": 14,
+    "submissions_count": 25,
+    "last_active": "2026-09-21"
+  },
+  {
+    "id": 3,
+    "name": "Jasur Bekmurodov",
+    "username": "jasurbek_dev",
+    "avg_band": 6.0,
+    "streak_days": 3,
+    "submissions_count": 8,
+    "last_active": "2026-09-19"
+  },
+  {
+    "id": 4,
+    "name": "Shahnoza Umarova",
+    "username": "shahnoza_u",
+    "avg_band": 7.0,
+    "streak_days": 9,
+    "submissions_count": 16,
+    "last_active": "2026-09-21"
+  },
+  {
+    "id": 5,
+    "name": "Bobur Mirzayev",
+    "username": "bobur_m",
+    "avg_band": 5.5,
+    "streak_days": 1,
+    "submissions_count": 4,
+    "last_active": "2026-09-16"
+  },
+  {
+    "id": 6,
+    "name": "Zuhra Yusupova",
+    "username": "zuhra_ielts",
+    "avg_band": 8.0,
+    "streak_days": 21,
+    "submissions_count": 32,
+    "last_active": "2026-09-21"
+  },
+  {
+    "id": 7,
+    "name": "Farrux Qodirov",
+    "username": "farrux_q",
+    "avg_band": 6.5,
+    "streak_days": 5,
+    "submissions_count": 10,
+    "last_active": "2026-09-18"
+  },
+  {
+    "id": 8,
+    "name": "Dilnoza Rahimova",
+    "username": "dilnoza_r",
+    "avg_band": 7.0,
+    "streak_days": 11,
+    "submissions_count": 19,
+    "last_active": "2026-09-20"
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "id": 42,
+    "student_id": 1,
+    "task_type": "task2",
+    "topic": "Some people believe that university education should be free for everyone. To what extent do you agree or disagree?",
+    "essay": "In recent decades, higher education has become an essential prerequisite for career advancement. A debate has arisen regarding whether governments should fund university tuition entirely for all citizens. In my view, while providing tertiary education at zero cost yields profound societal and economic dividends, targeted subsidies based on merit and financial need represent a more sustainable fiscal policy.\n\nTo begin with, free universal education dramatically democratizes access to opportunity. When tuition barriers are eradicated, talented individuals from disadvantaged socioeconomic backgrounds can acquire specialized competencies without accumulating crippling debt. For instance, Nordic nations such as Norway and Finland have demonstrated that publicly financed education stimulates social mobility and fuels technological innovation, creating a highly skilled workforce that generates superior tax revenues in the long term.\n\nHowever, indiscriminate funding places an enormous strain on national budgets. If public expenditure covers all university fees regardless of individual academic performance or personal wealth, other indispensable sectors like primary healthcare and infrastructure may suffer severe underfunding. Furthermore, offering free tertiary education unconditionally could result in students underestimating academic accountability, potentially leading to inflated dropout rates.\n\nIn conclusion, although universally accessible tertiary education fosters equality and economic prosperity, full state subsidies should be prioritized through income-contingent scholarships and grants rather than blanket coverage.",
+    "band_score": 7.0,
+    "criteria_scores": {
+      "tr_ta": 7.0,
+      "cc": 7.0,
+      "lr": 7.5,
+      "gra": 6.5
+    },
+    "recommendations": [
+      "Paragraflar o'rtasidagi bog'lovchi gaplarni (topic sentence) yanada konkretlashtiring va argumentlarni empirik dalillar bilan chuqurlashtiring.",
+      "Murakkab sintaktik tuzilmalarda (masalan, inversiya yoki shart mayllarida) tinish belgilari va artikllar aniqligiga e'tibor qarating.",
+      "Akademik so'z birikmalarini (collocations) tabiiy kontekstda qo'llashda sinonimlar takrorini kamaytiring."
+    ],
+    "feedback": "Insho muvozanatli va kuchli argumentlarga boy. Task Response bo'yicha nuqtai nazar aniq bayon qilingan. Lug'at boyligi (lexical resource) yuqori darajada (masalan: 'socioeconomic backgrounds', 'crippling debt', 'indiscriminate funding'). Grammatikada ba'zi mayda punktuatsiya xatolari bor, lekin umumiy tushunishga xalaqit bermaydi.",
+    "created_at": "2026-09-20T16:45:00"
+  },
+  {
+    "id": 39,
+    "student_id": 1,
+    "task_type": "task1",
+    "topic": "The chart below shows the percentage of households with internet access in three countries between 2010 and 2024.",
+    "essay": "The line graph illustrates the proportion of households possessing an active internet connection across three countries—the United Kingdom, Germany, and South Korea—over a fourteen-year timeframe from 2010 to 2024.\n\nOverall, it is evident that internet access exhibited a consistent upward trajectory in all three examined nations. South Korea maintained the dominant position throughout the entire period, while the United Kingdom registered the most substantial relative growth.\n\nIn 2010, South Korea led with approximately 78% of homes connected to the web, followed by Germany at 65% and the UK at just 58%. Over the subsequent seven years, South Korea's figure rose steadily, reaching 92% in 2017 before plateauing at around 98% in 2024.\n\nConcurrently, both European nations experienced accelerated penetration. The UK saw a sharp increase, surpassing Germany around 2018 at 84% and concluding the period at 95%. Meanwhile, Germany's adoption expanded at a moderate pace, reaching 89% in 2024.",
+    "band_score": 6.5,
+    "criteria_scores": {
+      "tr_ta": 6.5,
+      "cc": 7.0,
+      "lr": 6.5,
+      "gra": 6.0
+    },
+    "recommendations": [
+      "Overview qismini yanada ajratib ko'rsating va eng katta farqlarni umumiy tendensiya sifatida qayd eting.",
+      "Keltirilgan sanalar va raqamlarni solishtirishda turli xil sintaktik konstruktsiyalardan (masalan, 'whereas', 'compared to') ko'proq foydalaning.",
+      "Taqqoslashlar sonini oshirib, faqat xronologik ketma-ketlikda raqamlarni sanab o'tishdan qoching."
+    ],
+    "feedback": "Task 1 hisoboti talablarga to'liq javob beradi. Asosiy tendensiyalar (overview) mavjud. Raqamlar to'g'ri guruhlangan. Keyingi safar taqqoslash leksikasini boyitish orqali 7.0+ ballga chiqish mumkin.",
+    "created_at": "2026-09-18T11:20:00"
+  },
+  {
+    "id": 55,
+    "student_id": 2,
+    "task_type": "task2",
+    "topic": "With the rise of artificial intelligence, many traditional jobs are disappearing. Will AI create more problems than solutions in the future?",
+    "essay": "The unprecedented progression of artificial intelligence is fundamentally reshaping contemporary economic landscapes, prompting widespread apprehension regarding technological unemployment. While the automation of labor inevitably triggers transitional friction and localized disruptions, I contend that AI's capacity to amplify human productivity, foster novel industries, and solve intricate global challenges outweighs its associated pitfalls.\n\nUndeniably, the immediate repercussion of cognitive automation is the obsolescence of routine professions. Routine white-collar roles such as data entry, basic legal document review, and customer support are rapidly being superseded by generative algorithms. This displacement creates acute socio-economic vulnerability for individuals lacking adaptive digital skills, potentially exacerbating wealth inequality if governments fail to implement extensive reskilling initiatives.\n\nNonetheless, historical precedent affirms that industrial revolutions ultimately generate a surplus of employment opportunities. AI eliminates repetitive drudgery, enabling human capital to pivot toward high-value cognitive endeavors including biomedical innovation, sustainable energy modeling, and creative strategy. Furthermore, AI-driven diagnostics in medicine and predictive climate algorithms illustrate transformative benefits that dwarf systemic displacement risks.\n\nIn conclusion, although the proliferation of AI introduces severe labor transitions that demand proactive policy interventions, its transformative societal contributions render it overwhelmingly beneficial.",
+    "band_score": 8.0,
+    "criteria_scores": {
+      "tr_ta": 8.0,
+      "cc": 8.0,
+      "lr": 8.5,
+      "gra": 8.0
+    },
+    "recommendations": [
+      "Fikrlarni tushuntirishda muvozanat mukammal darajada, faqat xulosadagi tavsiyaviy nuqtani bitta qo'shimcha so'z bilan kengaytirish mumkin.",
+      "Tushunchalarni yanada yorqinroq qilish uchun kichik real misol qo'shish uslubiy boylikni oshiradi.",
+      "Grammatik murakkablik yuqori, vaqt boshqaruvi bo'yicha mashqlarni davom ettiring."
+    ],
+    "feedback": "Ajoyib akademik til, benuqson so'z boyligi va mukammal struktura. C2 darajasidagi so'z birikmalari juda tabiiy qo'llanilgan. Coherence va cohesion o'rtasidagi bog'liqlik benuqson.",
+    "created_at": "2026-09-21T09:15:00"
+  },
+  {
+    "id": 31,
+    "student_id": 3,
+    "task_type": "task2",
+    "topic": "Children are spending too much time on smartphones. What are the causes and what measures can be taken?",
+    "essay": "Nowadays many children spend hours using smartphones every day. This essay will examine the causes of this issue and suggest some practical solutions.\n\nOne major cause is that parents are very busy with work and they give mobile phones to keep their children occupied. Also, modern mobile applications like TikTok and mobile video games are specifically designed to be addictive with colorful visuals and continuous rewards.\n\nTo solve this, schools and parents must cooperate. Parents should establish daily screen time limits such as maximum one hour per day. Schools should organize more physical activities and sports clubs to encourage children to play outside with peers.\n\nIn conclusion, excessive smartphone use is driven by parental convenience and addictive app design, but strict household rules and sports programs can solve it.",
+    "band_score": 6.0,
+    "criteria_scores": {
+      "tr_ta": 6.0,
+      "cc": 6.0,
+      "lr": 6.0,
+      "gra": 6.0
+    },
+    "recommendations": [
+      "Gap tuzilishini rang-baranglashtiring: ko'proq nisbiy olmoshlar (relative clauses) va passiv nisbatlardan (passive voice) foydalaning.",
+      "Har bir sabab va yechimni to'liqroq tushuntiring, masalan, bolalar psixologiyasiga salbiy ta'siri haqida batafsil yozing.",
+      "'Very busy', 'big problem', 'good' kabi oddiy so'zlar o'rniga akademik ekvivalentlarni qo'llang ('preoccupied', 'substantial challenge')."
+    ],
+    "feedback": "Vazifaning barcha qismlari yoritilgan (causes and solutions). Biroq so'z boyligi va gap tuzilmalari biroz sodda. Akademik uslubni boyitish talab etiladi.",
+    "created_at": "2026-09-19T14:10:00"
+  }
+]
