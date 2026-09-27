@@ -44,7 +44,7 @@ GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
 ADMIN_PASSWORD = os.environ.get("WEBADMIN_PASSWORD", "6221991")
 
 client = genai.Client(api_key=GEMINI_KEY)
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.8-flash"
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
 
