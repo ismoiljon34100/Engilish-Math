@@ -2,13 +2,14 @@
 Multi-Functional Telegram Bot:
 - Matematika (Ko'paytirish jadvali + Masala/Misol rasmini yechish)
 - Ingliz tili (Writing, Speaking, Grammar, Vocab / Tarjimon)
-- Gemini Multimodal Vision & Async Engine
+- Gemini Multimodal Vision & Async Engine (avtomatik qayta urinish bilan)
 - WebAdmin & SQLite Logs integratsiyasi
 """
 
 import os
 import re
 import random
+import asyncio
 import tempfile
 import sqlite3
 import logging
@@ -32,6 +33,7 @@ from telegram.ext import (
 
 from google import genai
 from google.genai import types
+from google.genai import errors as genai_errors
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -44,7 +46,12 @@ GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
 ADMIN_PASSWORD = os.environ.get("WEBADMIN_PASSWORD", "6221991")
 
 client = genai.Client(api_key=GEMINI_KEY)
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3.8-flash"
+
+FRIENDLY_ERROR_MSG = (
+    "⚠️ Kechirasiz, hozir sun'iy intellekt xizmati band yoki vaqtinchalik "
+    "ishlamayapti. Iltimos, bir necha soniyadan so'ng qayta urinib ko'ring."
+)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
 
@@ -140,7 +147,6 @@ def get_recent_errors(user_id, limit=15):
 user_state = {}
 current_speaking_question = {}
 
-# --- MENYULAR (KEYBOARDS) ---
 MAIN_KEYBOARD = ReplyKeyboardMarkup(
     [["🔢 Matematika", "🇬🇧 Ingliz tili"]],
     resize_keyboard=True,
@@ -252,34 +258,78 @@ def build_keyboard(items, columns=2, back_label="⬅️ Orqaga"):
 GRAMMAR_CATEGORIES_KEYBOARD = build_keyboard(list(GRAMMAR_TOPICS.keys()))
 
 
-# --- AI ASINXRON FUNKSIYALARI ---
+# --- AI ASINXRON FUNKSIYALARI (avtomatik qayta urinish bilan) ---
 
-async def call_gemini(prompt: str, system_instruction: str = None) -> str:
+async def call_gemini(prompt: str, system_instruction: str = None, max_retries: int = 4) -> str:
     config = types.GenerateContentConfig(
         system_instruction=system_instruction,
         temperature=0.3,
         max_output_tokens=2000,
     )
-    res = await client.aio.models.generate_content(
-        model=GEMINI_MODEL,
-        contents=prompt,
-        config=config,
-    )
-    return res.text or ""
+
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            res = await client.aio.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=config,
+            )
+            return res.text or ""
+        except genai_errors.ServerError as e:
+            last_error = e
+            wait = 2 * (attempt + 1)
+            logger.warning(f"Gemini 503/band (urinish {attempt+1}/{max_retries}), {wait}s kutilmoqda: {e}")
+            await asyncio.sleep(wait)
+        except genai_errors.ClientError as e:
+            if "404" in str(e) or "NOT_FOUND" in str(e):
+                logger.error(f"Model topilmadi: {GEMINI_MODEL}. Model nomini tekshiring: {e}")
+                raise
+            if "429" in str(e):
+                last_error = e
+                wait = 3 * (attempt + 1)
+                logger.warning(f"Gemini limit (urinish {attempt+1}/{max_retries}), {wait}s kutilmoqda: {e}")
+                await asyncio.sleep(wait)
+            else:
+                raise
+
+    raise last_error
 
 
-async def call_gemini_vision(image_bytes: bytes, mime_type: str, prompt: str) -> str:
+async def call_gemini_vision(image_bytes: bytes, mime_type: str, prompt: str, max_retries: int = 4) -> str:
     image_part = types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
     config = types.GenerateContentConfig(
         temperature=0.2,
         max_output_tokens=2000,
     )
-    res = await client.aio.models.generate_content(
-        model=GEMINI_MODEL,
-        contents=[image_part, prompt],
-        config=config,
-    )
-    return res.text or ""
+
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            res = await client.aio.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=[image_part, prompt],
+                config=config,
+            )
+            return res.text or ""
+        except genai_errors.ServerError as e:
+            last_error = e
+            wait = 2 * (attempt + 1)
+            logger.warning(f"Gemini vision 503/band (urinish {attempt+1}/{max_retries}), {wait}s kutilmoqda: {e}")
+            await asyncio.sleep(wait)
+        except genai_errors.ClientError as e:
+            if "404" in str(e) or "NOT_FOUND" in str(e):
+                logger.error(f"Model topilmadi: {GEMINI_MODEL}. Model nomini tekshiring: {e}")
+                raise
+            if "429" in str(e):
+                last_error = e
+                wait = 3 * (attempt + 1)
+                logger.warning(f"Gemini vision limit (urinish {attempt+1}/{max_retries}), {wait}s kutilmoqda: {e}")
+                await asyncio.sleep(wait)
+            else:
+                raise
+
+    raise last_error
 
 
 def escape_html(s: str) -> str:
@@ -323,7 +373,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "    │   └── 💡 Speaking Vocab (Band 7+ iboralar)\n"
         "    ├── 📖 <b>Grammar</b>\n"
         "    │   ├── 📚 Aniq qoidalar va formulalar\n"
-        "    │   └── 📸 Mashq rasmini ishlash (Kitobdagi test/mashqlar)\n"
+        "    │   └── �� Mashq rasmini ishlash (Kitobdagi test/mashqlar)\n"
         "    └── 📚 <b>Vocab</b>\n"
         "        └── 🌐 <b>Tarjimon</b> (O'zbekcha ➡️ Inglizcha Band 7+)\n\n"
         "Kerakli bo'limni tanlang 👇"
@@ -356,8 +406,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
     state = user_state.get(user_id)
 
-    # 1. Asosiy bo'lim tanlovlari
-    if text == "🔢 Matematika":
+    if text == "�� Matematika":
         user_state.pop(user_id, None)
         await update.message.reply_text("🔢 Matematika bo'limi. Tanlang:", reply_markup=MATH_KEYBOARD)
         return
@@ -370,7 +419,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Asosiy menyu:", reply_markup=MAIN_KEYBOARD)
         return
 
-    # 2. Matematika ost-menyusi
     if text == "✖️ Ko'paytirish jadvali":
         await update.message.reply_text(get_multiplication_table(), parse_mode="HTML")
         return
@@ -381,7 +429,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    # 3. Ingliz tili ost-menyusi
     if text == "✍️ Writing":
         await update.message.reply_text("✍️ Writing bo'limi:", reply_markup=WRITING_KEYBOARD)
         return
@@ -395,7 +442,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("📚 Vocab bo'limi:", reply_markup=VOCAB_MENU_KEYBOARD)
         return
 
-    # 4. Writing bloklari
     if text == "📝 Task 1":
         user_state[user_id] = "task1"
         await update.message.reply_text("📝 Task 1 uchun inshongizni matn ko'rinishida yoki grafik rasmini yuboring.")
@@ -412,14 +458,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🧩 <b>IELTS Task 1 Band 9 Struktura:</b>\n"
             "1. Introduction (Paraphrase)\n"
             "2. Overview (1-2 ta asosiy tendensiya)\n"
-            "3. Body 1 (Taqqoslashlar & Aniq raqamlar)\n"
-            "4. Body 2 (Qolgan ma'lumotlar & Tahlil)\n"
+            "3. Body 1 (Taqqoslashlar &amp; Aniq raqamlar)\n"
+            "4. Body 2 (Qolgan ma'lumotlar &amp; Tahlil)\n"
             "⚠️ Xulosa yozilmaydi!", parse_mode="HTML"
         )
         return
     elif text == "✍️ Task 2 Struktura":
         await update.message.reply_text(
-            "🧩 <b>IELTS Task 2 Band 9 Struktura:</b>\n"
+            "�� <b>IELTS Task 2 Band 9 Struktura:</b>\n"
             "1. Introduction (Background + Thesis statement)\n"
             "2. Body 1 (Idea + Explanation + Example)\n"
             "3. Body 2 (Idea + Explanation + Example)\n"
@@ -441,15 +487,18 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         await update.message.reply_text("⏳ Zaif tomonlaringiz tahlil qilinmoqda...")
         prompt = f"Talabaning oxirgi xatolari:\n{errors}\nUning eng ko'p takrorlanadigan 3 ta zaif tomonini aniqlang va o'zbek tilida maslahat bering."
-        ans = await call_gemini(prompt)
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Tahlilda xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         return
     elif text == "💡 Band 7+ Vocab":
         user_state[user_id] = "vocab_writing"
         await update.message.reply_text("✍️ Writing uchun so'z yuboring. Unga mos akademik 5 ta Band 7+ sinonim beraman.")
         return
 
-    # 5. Speaking bloklari
     if text == "🎙 Speaking Practice":
         user_state[user_id] = "speaking_practice"
         q = random.choice(SPEAKING_QUESTIONS)
@@ -468,7 +517,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🗣 Speaking uchun oddiy so'z yuboring. Og'zaki nutqda ishlatiladigan 5 ta tabiiy, Band 7+ iboralarni beraman.")
         return
 
-    # 6. Grammar bloklari
     if text == "📚 Grammatika mavzulari":
         user_state[user_id] = "grammar_categories"
         await update.message.reply_text("Grammatika kategoriyasini tanlang:", reply_markup=GRAMMAR_CATEGORIES_KEYBOARD)
@@ -478,7 +526,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("📸 Darslik yoki daftardagi ingliz tili mashqlari rasmini yuboring. AI to'g'ri javoblarni tushuntirib beradi.")
         return
 
-    # 7. Vocab / Tarjimon
     if text == "🌐 Tarjimon":
         user_state[user_id] = "translator"
         await update.message.reply_text(
@@ -489,7 +536,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    # --- MATNLI AI HOLATLARINI QAYTA ISHLASH ---
     if state == "translator":
         log_activity(user_id, user.username, "translator", text[:40])
         prompt = (
@@ -500,8 +546,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Har bir variant ostida ishlatilgan muhim so'zlarni qisqacha o'zbekcha tushuntiring."
         )
         await update.message.reply_text("⏳ Tarjima qilinmoqda...")
-        ans = await call_gemini(prompt)
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Tarjimada xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         return
 
     if state == "speaking_sample":
@@ -512,8 +562,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Oxirida unda ishlatilgan eng zo'r 4-5 ta iborani o'zbekcha ma'nosi bilan ajratib ko'rsating."
         )
         await update.message.reply_text("⏳ Band 9 namunaviy javob tayyorlanmoqda...")
-        ans = await call_gemini(prompt)
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Speaking sample xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         return
 
     if state in ("vocab_writing", "vocab_speaking"):
@@ -524,8 +578,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"5 ta yuqori darajadagi sinonim yoki kolformatsiya bering. Har biriga inglizcha misol va o'zbekcha tarjima yozing. To'g'ridan-to'g'ri 1-dan boshlang."
         )
         await update.message.reply_text("⏳ Sinonimlar qidirilmoqda...")
-        ans = await call_gemini(prompt)
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Vocab xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         return
 
     if state == "grammar_categories" and text in GRAMMAR_TOPICS:
@@ -544,8 +602,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "4. Eng ko'p qilinadigan xato."
         )
         await update.message.reply_text("⏳ Dars tayyorlanmoqda...")
-        ans = await call_gemini(prompt)
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Grammar xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         return
 
     if state in ("task1", "task2"):
@@ -557,10 +619,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Siz qat'iy IELTS Examinerisiz. Quyidagi {state.upper()} inshosini rasmiy mezonlar (TR/CC/LR/GRA) bo'yicha baholang.\n"
             f"Umumiy ball (Band), har bir mezon uchun ball va aniq xatolarni ko'rsating:\n\n{text}"
         )
-        ans = await call_gemini(prompt)
-        save_submission(user_id, user.username or "", state, text, 6.5, ans[:200])
-        log_activity(user_id, user.username, f"{state}_checked")
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            save_submission(user_id, user.username or "", state, text, 6.5, ans[:200])
+            log_activity(user_id, user.username, f"{state}_checked")
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Insho baholashda xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         user_state.pop(user_id, None)
         return
 
@@ -568,11 +634,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         q = current_speaking_question.get(user_id, "")
         prompt = f"Speaking savoli: '{q}'\nTalaba javobi: '{text}'\nBuni Fluency, Vocabulary, Grammar bo'yicha baholang va o'zbekcha tavsiya bering."
         await update.message.reply_text("⏳ Baholanmoqda...")
-        ans = await call_gemini(prompt)
-        await send_smart_message(update, ans)
+        try:
+            ans = await call_gemini(prompt)
+            await send_smart_message(update, ans)
+        except Exception:
+            logger.exception("Speaking practice xatolik")
+            await update.message.reply_text(FRIENDLY_ERROR_MSG)
         return
 
-    # Agar boshqa matn kelsa:
     await update.message.reply_text("Iltimos, pastdagi tugmalardan foydalaning.", reply_markup=MAIN_KEYBOARD)
 
 
@@ -606,7 +675,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Har bir mashqning to'g'ri javobini topib, nima uchun aynan shu javob to'g'riligini o'zbek tilida tushuntiring."
             )
             log_activity(user_id, user.username, "grammar_photo_solved")
-        else:  # task1
+        else:
             prompt = (
                 "Siz IELTS Writing Task 1 bo'yicha ekspertsiz. Rasmdagi grafik/diagrammani tahlil qiling va "
                 "Band 9 darajasidagi namunaviy akademik insho (kamida 150 so'z) yozib bering."
@@ -616,9 +685,9 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         res_text = await call_gemini_vision(bytes(image_bytes), "image/jpeg", prompt)
         await send_smart_message(update, res_text)
 
-    except Exception as e:
+    except Exception:
         logger.exception("Rasmni tahlil qilishda xatolik")
-        await update.message.reply_text(f"Kechirasiz, rasmni qayta ishlashda xatolik yuz berdi: {e}")
+        await update.message.reply_text(FRIENDLY_ERROR_MSG)
 
     user_state.pop(user_id, None)
 
@@ -655,14 +724,20 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         os.remove(wav_path)
 
         q = current_speaking_question.get(user_id, "")
-        await update.message.reply_text(f"📝 <b>Transkripsiya:</b> <i>{escape_html(transcript)}</i>\n\n⏳ Baholanmoqda...", parse_mode="HTML")
+        await update.message.reply_text(
+            f"📝 <b>Transkripsiya:</b> <i>{escape_html(transcript)}</i>\n\n⏳ Baholanmoqda...",
+            parse_mode="HTML",
+        )
         prompt = f"Speaking savoli: '{q}'\nTalaba nutqi: '{transcript}'\nFluency, Vocab, Grammar mezonlari bo'yicha o'zbekcha tahlil bering."
         ans = await call_gemini(prompt)
         await send_smart_message(update, ans)
 
-    except Exception as e:
+    except Exception:
         logger.exception("Ovozni qayta ishlashda xatolik")
-        await update.message.reply_text("Ovozni aniqlab bo'lmadi. Iltimos, aniqroq talaffuz qiling yoki matn ko'rinishida yuboring.")
+        await update.message.reply_text(
+            "Ovozni aniqlab bo'lmadi yoki AI xizmati band. Iltimos, qayta urinib ko'ring "
+            "yoki matn ko'rinishida yuboring."
+        )
 
 
 def main():
@@ -679,7 +754,7 @@ def main():
     app.add_handler(MessageHandler(filters.VOICE, handle_voice))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
-    logger.info("Bot yangilangan arxitektura bilan ishga tushdi...")
+    logger.info("Bot yangilangan arxitektura bilan ishga tushdi (retry logikasi bilan)...")
     app.run_polling()
 
 
