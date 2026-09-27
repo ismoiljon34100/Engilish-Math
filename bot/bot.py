@@ -53,6 +53,15 @@ FRIENDLY_ERROR_MSG = (
     "ishlamayapti. Iltimos, bir necha soniyadan so'ng qayta urinib ko'ring."
 )
 
+FORMAT_RULE = (
+    "\n\nMUHIM QOIDA: Javobingizda HECH QACHON LaTeX belgilaridan "
+    "($$ , \\text{}, \\approx, \\times va h.k.) foydalanmang. "
+    "Matematik amallarni oddiy matn ko'rinishida yozing, masalan: "
+    "'5879 kg = 5.879 t' yoki '11022 m ≈ 11 km'. "
+    "Qalin matn uchun Markdown yulduzcha (**so'z**) ishlatishingiz mumkin, "
+    "u avtomatik chiroyli formatga aylantiriladi."
+)
+
 DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
 
 
@@ -166,7 +175,7 @@ WRITING_KEYBOARD = ReplyKeyboardMarkup(
     [
         ["📝 Task 1", "📝 Task 2"],
         ["🧩 Struktura", "🎲 Mavzu"],
-        ["🔍 Tahlil", "💡 Band 7+ Vocab"],
+        ["�� Tahlil", "💡 Band 7+ Vocab"],
         ["⬅️ Orqaga"],
     ],
     resize_keyboard=True,
@@ -258,9 +267,33 @@ def build_keyboard(items, columns=2, back_label="⬅️ Orqaga"):
 GRAMMAR_CATEGORIES_KEYBOARD = build_keyboard(list(GRAMMAR_TOPICS.keys()))
 
 
+def sanitize_ai_output(text: str) -> str:
+    """LaTeX va Markdown qoldiqlarini tozalab, Telegram uchun toza matn qiladi."""
+    text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+    text = re.sub(r"\$\$(.+?)\$\$", r"\1", text, flags=re.DOTALL)
+    text = re.sub(r"\$(.+?)\$", r"\1", text)
+    text = re.sub(r"\\text\{(.+?)\}", r"\1", text)
+
+    replacements = {
+        r"\approx": "≈",
+        r"\ge": "≥",
+        r"\le": "≤",
+        r"\times": "×",
+        r"\div": "÷",
+        r"\{": "",
+        r"\}": "",
+        r"\,": " ",
+    }
+    for latex, plain in replacements.items():
+        text = text.replace(latex, plain)
+
+    return text
+
+
 # --- AI ASINXRON FUNKSIYALARI (avtomatik qayta urinish bilan) ---
 
 async def call_gemini(prompt: str, system_instruction: str = None, max_retries: int = 4) -> str:
+    prompt = prompt + FORMAT_RULE
     config = types.GenerateContentConfig(
         system_instruction=system_instruction,
         temperature=0.3,
@@ -297,6 +330,7 @@ async def call_gemini(prompt: str, system_instruction: str = None, max_retries: 
 
 
 async def call_gemini_vision(image_bytes: bytes, mime_type: str, prompt: str, max_retries: int = 4) -> str:
+    prompt = prompt + FORMAT_RULE
     image_part = types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
     config = types.GenerateContentConfig(
         temperature=0.2,
@@ -337,6 +371,7 @@ def escape_html(s: str) -> str:
 
 
 async def send_smart_message(update: Update, text: str):
+    text = sanitize_ai_output(text)
     max_len = 3800
     for i in range(0, len(text), max_len):
         part = text[i:i + max_len]
@@ -373,7 +408,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "    │   └── 💡 Speaking Vocab (Band 7+ iboralar)\n"
         "    ├── 📖 <b>Grammar</b>\n"
         "    │   ├── 📚 Aniq qoidalar va formulalar\n"
-        "    │   └── �� Mashq rasmini ishlash (Kitobdagi test/mashqlar)\n"
+        "    │   └── 📸 Mashq rasmini ishlash (Kitobdagi test/mashqlar)\n"
         "    └── 📚 <b>Vocab</b>\n"
         "        └── 🌐 <b>Tarjimon</b> (O'zbekcha ➡️ Inglizcha Band 7+)\n\n"
         "Kerakli bo'limni tanlang 👇"
@@ -406,7 +441,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
     state = user_state.get(user_id)
 
-    if text == "�� Matematika":
+    if text == "🔢 Matematika":
         user_state.pop(user_id, None)
         await update.message.reply_text("🔢 Matematika bo'limi. Tanlang:", reply_markup=MATH_KEYBOARD)
         return
@@ -465,7 +500,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     elif text == "✍️ Task 2 Struktura":
         await update.message.reply_text(
-            "�� <b>IELTS Task 2 Band 9 Struktura:</b>\n"
+            "🧩 <b>IELTS Task 2 Band 9 Struktura:</b>\n"
             "1. Introduction (Background + Thesis statement)\n"
             "2. Body 1 (Idea + Explanation + Example)\n"
             "3. Body 2 (Idea + Explanation + Example)\n"
@@ -529,7 +564,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text == "🌐 Tarjimon":
         user_state[user_id] = "translator"
         await update.message.reply_text(
-            "🇺🇿 <b>O'zbekcha so'z yoki gap yozing:</b>\n\n"
+            "��🇿 <b>O'zbekcha so'z yoki gap yozing:</b>\n\n"
             "Men uni IELTS darajasidagi chiroyli ingliz tiliga tarjima qilib beraman.\n"
             "To'xtatish uchun /stop bosing.",
             parse_mode="HTML"
